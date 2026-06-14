@@ -71,35 +71,38 @@ npm run seed
 npm run dev
 ```
 
-Server runs on `http://localhost:3000`.
+Server runs on `http://localhost:5000`.
 
 ## Testing with Postman
 
-1. **Register/Login** - Send `POST /api/auth/login` with `{"email": "admin@example.com", "password": "password123"}`
-2. **Copy the accessToken** from the response
-3. **Set Authorization header** - Add `Authorization: Bearer <token>` to subsequent requests
-4. **Test CRUD** - Use the endpoints above with the admin token
+### Setup
+1. Open Postman, create a new collection called "Users CRUD API"
+2. **Seed users first:** `npm run seed` (creates admin + 3 users)
 
-### Example Requests
+### Flow
+1. Login as admin to get a token
+2. Copy the `accessToken` from the response
+3. For protected endpoints: go to **Authorization** tab, select **Bearer Token**, paste the token
+4. For requests with a body: go to **Body** tab, select **raw** and **JSON**
 
-```bash
-# Register
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Jane","email":"jane@example.com","password":"secret123"}'
+### Postman Request Table
 
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"password123"}'
+| Method | URL | Auth | Headers | Body (raw JSON) |
+|--------|-----|------|---------|-----------------|
+| `POST` | `http://localhost:5000/api/auth/register` | None | — | `{"name":"Jane","email":"jane@example.com","password":"secret123"}` |
+| `POST` | `http://localhost:5000/api/auth/login` | None | — | `{"email":"admin@example.com","password":"password123"}` |
+| `GET` | `http://localhost:5000/api/auth/me` | Bearer Token | — | — |
+| `GET` | `http://localhost:5000/api/users` | Bearer Token | — | — |
+| `GET` | `http://localhost:5000/api/users?search=john&role=user&page=1&limit=5` | Bearer Token | — | — |
+| `GET` | `http://localhost:5000/api/users/1` | Bearer Token | — | — |
+| `POST` | `http://localhost:5000/api/users` | Bearer Token | — | `{"name":"New User","email":"new@example.com","password":"password123","role":"user"}` |
+| `PUT` | `http://localhost:5000/api/users/1` | Bearer Token | — | `{"name":"Updated Name","email":"updated@example.com"}` |
+| `DELETE` | `http://localhost:5000/api/users/5` | Bearer Token | — | — |
+| `GET` | `http://localhost:5000/api/posts` | None | — | — |
+| `GET` | `http://localhost:5000/api/posts?tag=express&page=1&limit=10` | None | — | — |
+| `GET` | `http://localhost:5000/api/posts/1` | None | — | — |
+| `POST` | `http://localhost:5000/api/posts` | Bearer Token | — | `{"title":"My Post","content":"Hello world","tags":"express,nodejs","published":true}` |
+| `PATCH` | `http://localhost:5000/api/posts/1` | Bearer Token | — | `{"title":"Updated Title","published":false}` |
+| `DELETE` | `http://localhost:5000/api/posts/1` | Bearer Token | — | — |
 
-# Create user (admin)
-curl -X POST http://localhost:3000/api/users \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"New User","email":"new@example.com","password":"password123"}'
-
-# List users with search
-curl "http://localhost:3000/api/users?search=john&page=1&limit=10" \
-  -H "Authorization: Bearer <token>"
-```
+> **Tip:** For `GET` and `DELETE` requests, leave the Body tab empty. For `POST`, `PUT`, `PATCH` select Body > raw > JSON and paste the JSON.
